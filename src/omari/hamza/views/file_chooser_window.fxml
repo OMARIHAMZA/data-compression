@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane fx:id="rootView" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #3f4045;" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="omari.hamza.controllers.FileChooserController">
+   <children>
+      <ImageView fx:id="dropImageView" fitHeight="400.0" fitWidth="300.0" layoutX="150.0" layoutY="88.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../res/dd.png" />
+         </image>
+      </ImageView>
+      <JFXButton fx:id="browseButton" layoutX="274.0" layoutY="344.0" onAction="#browseFiles" style="-fx-border-color: #ffffff;" text="Browse" textFill="WHITE" />
+   </children>
+</AnchorPane>
