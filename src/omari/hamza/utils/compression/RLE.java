@@ -7,7 +7,8 @@ public class RLE {
     /**
      * default constructor
      **/
-    public RLE() {
+    private RLE() {
+
     }
 
     /**
@@ -19,7 +20,7 @@ public class RLE {
      * @param out the outputStream for writing the compressed data
      * @return a String reporting information to be logged.
      **/
-    public String compress(InputStream in, OutputStream out) {
+    static String compress(InputStream in, OutputStream out) {
         try {
             //Uncomment the following line to use the write buffer
             //WriteBuffer b = new WriteBuffer(out);
@@ -58,15 +59,15 @@ public class RLE {
      * @param out the outputStream for writing the decompressed data
      * @return a String reporting information to be logged.
      **/
-    public String decompress(InputStream in, OutputStream out) {
+    static String decompress(InputStream in, OutputStream out) {
         try {
-            StringBuffer log = new StringBuffer("");
+            StringBuilder log = new StringBuilder();
             int count = in.read();
             while (count != -1) {
                 int bite = in.read();
                 for (int i = 0; i < count; i++)
                     out.write(bite);
-                log.append("Read " + count + " " + bite + "'s\n");
+                log.append("Read ").append(count).append(" ").append(bite).append("'s\n");
                 count = in.read();
             }
             return log.toString();
@@ -110,52 +111,6 @@ public class RLE {
         }*/
     }
 
-    private static void usage() {
-        System.out.println("The RLE class will compress/decompress from command line");
-        System.out.println("The options are:");
-        System.out.println("\t c to compress");
-        System.out.println("\t d to decompress");
-        System.out.println("\t v for verbose output");
-        System.out.println("followed by input file, then output file.");
-        System.out.println("For example:");
-        System.out.println("java RLE -vc file.txt file.z");
-        System.out.println("will create a compressed file, file.z corresponding to file.txt and give verbose output.");
-        System.out.println("java RLE -d file.z file.txt");
-        System.out.println("will create a decompress the file, file.z, to give the original file.txt and give verbose output.");
-    }
 
-    /**
-     * A simple class for writing bitstreams to bytestreams
-     **/
-    class WriteBuffer {
-
-        int pos;//the number of bits in the buffer
-        long buffer;
-        OutputStream out;
-
-        WriteBuffer(OutputStream out) {
-            this.out = out;
-        }
-
-        /**
-         * Writes the n least significant bits of m to the buffer
-         **/
-        public void write(int n, int m) throws IOException {
-            buffer = (buffer << n) + m % (1 << n);
-            pos = pos + n;
-            while (pos >= 8) {
-                out.write((int) (buffer >> (pos - 8)));
-                pos = pos - 8;
-            }
-        }
-
-        /**
-         * pads the final output with 0's and writes to
-         * the output stream
-         **/
-        public void flush() throws IOException {
-            write((8 - pos % 8) % 8, 0);
-        }
-    }
 }
 

@@ -1,6 +1,7 @@
 package omari.hamza.controllers;
 
 import com.jfoenix.controls.JFXButton;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -13,6 +14,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static omari.hamza.Main.APPLICATION_NAME;
 import static omari.hamza.Main.COMPRESSION_WINDOW_PATH;
@@ -73,14 +75,29 @@ public class FileChooserController extends MasterController {
      * @param filePath: Path of the file/folder to compress/decompress
      */
     private void launchNextScene(String filePath) {
-        Stage primaryStage = ((Stage) rootView.getScene().getWindow());
+        Parent root;
+        Stage stage;
+        //noinspection all
         try {
-            Parent root = FXMLLoader.load(getClass().getResource(COMPRESSION_WINDOW_PATH));
-            primaryStage.setTitle(APPLICATION_NAME);
-            primaryStage.setScene(new Scene(root));
-            primaryStage.show();
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../views/compression_window.fxml"));
+            root = fxmlLoader.load();
+            CompressionWindowController controller = fxmlLoader.getController();
+            controller.setFilePath(filePath);
+            stage = new Stage();
+            stage.setTitle(APPLICATION_NAME);
+            stage.setScene(new Scene(root));
+            Platform.runLater(() -> {
+                ((Stage) rootView.getScene().getWindow()).close();
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Platform.runLater(stage::show);
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
 }
