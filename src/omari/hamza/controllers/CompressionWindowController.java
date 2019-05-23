@@ -1,19 +1,20 @@
 package omari.hamza.controllers;
 
-import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
-import javafx.event.ActionEvent;
+import com.jfoenix.controls.JFXSpinner;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import omari.hamza.utils.compression.CompressionUtils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static omari.hamza.Main.APPLICATION_NAME;
@@ -22,16 +23,16 @@ import static omari.hamza.utils.compression.CompressionUtils.CompressionAlgorith
 public class CompressionWindowController extends MasterController {
 
     @FXML
+    private VBox inputLayout;
+
+    @FXML
     private TextField fileNameTextField;
 
     @FXML
     private JFXComboBox<String> algorithmComboBox;
 
     @FXML
-    private JFXButton decompressButton;
-
-    @FXML
-    private JFXButton compressButton;
+    private JFXSpinner progressBar;
 
 
     private String filePath;
@@ -40,32 +41,76 @@ public class CompressionWindowController extends MasterController {
     protected void onCreate() {
         algorithmComboBox.getItems().addAll(CompressionAlgorithms.RLE.toString(),
                 CompressionAlgorithms.HUFFMAN.toString(),
-                CompressionAlgorithms.ADAPTIVE_HUFFMAN.toString());
+                CompressionAlgorithms.ADAPTIVE_HUFFMAN.toString(),
+                CompressionAlgorithms.LZ77.toString(),
+                CompressionAlgorithms.ARITHMETIC_CODING.toString(),
+                CompressionAlgorithms.ADAPTIVE_ARITHMETIC_CODING.toString());
     }
 
 
     @FXML
     void actionCompress() {
-        try {
-            CompressionUtils.compress(filePath,
-                    new File(filePath).getParent() + "/" + fileNameTextField.getText(),
-                    algorithmComboBox.getSelectionModel().getSelectedItem());
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        inputLayout.setVisible(false);
+        progressBar.setVisible(true);
+
+        Thread compressionThread = createThread(new Task<>() {
+            @Override
+            protected Void call() {
+                try {
+                    CompressionUtils.compress(filePath,
+                            new File(filePath).getParent() + "/" + fileNameTextField.getText(),
+                            algorithmComboBox.getSelectionModel().getSelectedItem());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        });
+
+        compressionThread.start();
+
     }
 
     @FXML
     void actionDecompress() {
-        try {
-            CompressionUtils.decompress(filePath,
-                    new File(filePath).getParent() + "/" + fileNameTextField.getText(),
-                    algorithmComboBox.getSelectionModel().getSelectedItem());
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        inputLayout.setVisible(false);
+        progressBar.setVisible(true);
+
+
+        Thread decompressionThread = createThread(new Task<>() {
+            @Override
+            protected Void call() {
+                try {
+                    CompressionUtils.decompress(filePath,
+                            new File(filePath).getParent() + "/" + fileNameTextField.getText(),
+                            algorithmComboBox.getSelectionModel().getSelectedItem());
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        });
+
+        decompressionThread.start();
+
+    }
+
+    private Thread createThread(Task<Void> task) {
+        task.setOnFailed(event -> {
+            inputLayout.setVisible(true);
+            progressBar.setVisible(false);
+        });
+
+        task.setOnSucceeded(event -> {
+            inputLayout.setVisible(true);
+            progressBar.setVisible(false);
+        });
+
+        return new Thread(task);
     }
 
     @FXML

@@ -1,7 +1,9 @@
 package omari.hamza.controllers;
 
+import com.jfoenix.controls.JFXDialog;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -17,7 +19,7 @@ public abstract class MasterController implements Initializable {
         onCreate();
     }
 
-    protected void setContentView(Node node) {
+    void setContentView(Node node) {
         this.rootView = node;
     }
 
@@ -33,6 +35,13 @@ public abstract class MasterController implements Initializable {
         fileChooser.getExtensionFilters().add(extensionFilter);
 
         return fileChooser.showOpenDialog(rootView.getScene().getWindow());
+    }
+
+    protected void createDialog(String title, String message){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 }

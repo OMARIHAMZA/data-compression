@@ -1,16 +1,21 @@
 package omari.hamza.utils.compression;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import omari.hamza.utils.FileUtils;
+import omari.hamza.utils.compression.aithmetic_coding.*;
+
+import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
+
+import static omari.hamza.utils.compression.aithmetic_coding.ArithmeticCompress.getFrequencies;
+import static omari.hamza.utils.compression.aithmetic_coding.ArithmeticCompress.writeFrequencies;
+import static omari.hamza.utils.compression.aithmetic_coding.ArithmeticDecompress.readFrequencies;
 
 public class CompressionUtils {
 
-    public static enum CompressionAlgorithms {
+    public enum CompressionAlgorithms {
 
-        RLE, HUFFMAN, ADAPTIVE_HUFFMAN, LZ77;
+        RLE, HUFFMAN, ADAPTIVE_HUFFMAN, LZ77, ARITHMETIC_CODING, ADAPTIVE_ARITHMETIC_CODING;
 
 
         @Override
@@ -19,22 +24,28 @@ public class CompressionUtils {
                 case RLE: {
                     return "RLE";
                 }
-
                 case ADAPTIVE_HUFFMAN: {
                     return "Adaptive Huffman";
                 }
-
                 case HUFFMAN: {
                     return "Huffman";
                 }
+                case LZ77: {
+                    return "LZ77";
+                }
+                case ARITHMETIC_CODING: {
+                    return "Arithmetic Coding";
+                }
+                case ADAPTIVE_ARITHMETIC_CODING: {
+                    return "Adaptive Arithmetic Coding";
+                }
             }
-
             return "";
         }
     }
 
     public static void compress(String inputFilePath, String outputFilePath, String compressionAlgorithm)
-            throws FileNotFoundException {
+            throws IOException {
 
         ArrayList<File> files = getFiles(inputFilePath);
 
@@ -46,12 +57,16 @@ public class CompressionUtils {
                     RLE.compress(new FileInputStream(inputFilePath),
                             new FileOutputStream(outputFilePath));
 
+                    calculateCompressionRatio(inputFilePath, outputFilePath);
+
                     break;
 
                 } else {
                     for (File file : files) {
                         new File(file.getParent() + "/compressed").mkdirs();
-                        RLE.compress(new FileInputStream(file), new FileOutputStream(file.getParent() + "/compressed/" + file.getName()));
+                        String outputFileLocation = file.getParent() + "/compressed/" + file.getName();
+                        RLE.compress(new FileInputStream(file), new FileOutputStream(outputFileLocation));
+                        calculateCompressionRatio(file.getPath(), outputFileLocation);
                     }
 
                 }
@@ -67,12 +82,54 @@ public class CompressionUtils {
 
                 break;
             }
+
+            case "Arithmetic Coding": {
+
+                if (files.size() == 1) {
+
+                    arithmeticCodingCompress(inputFilePath, outputFilePath);
+
+                    calculateCompressionRatio(inputFilePath, outputFilePath);
+
+                    break;
+
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/compressed").mkdirs();
+                        String outputFileLocation = file.getParent() + "/compressed/" + file.getName();
+                        arithmeticCodingCompress(file.getPath(), outputFileLocation);
+                        calculateCompressionRatio(file.getPath(), outputFileLocation);
+                    }
+
+                }
+                break;
+            }
+
+            case "Adaptive Arithmetic Coding": {
+
+                if (files.size() == 1) {
+
+                    adaptiveArithmeticCodingCompress(inputFilePath, outputFilePath);
+                    calculateCompressionRatio(inputFilePath, outputFilePath);
+                    break;
+
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/compressed").mkdirs();
+                        String outputFileLocation = file.getParent() + "/compressed/" + file.getName();
+                        adaptiveArithmeticCodingCompress(file.getPath(), outputFileLocation);
+                        calculateCompressionRatio(file.getPath(), outputFileLocation);
+                    }
+
+                }
+                break;
+            }
         }
     }
 
 
     public static void decompress(String inputFilePath, String outputFilePath, String compressionAlgorithm)
-            throws FileNotFoundException {
+            throws IOException {
 
         ArrayList<File> files = getFiles(inputFilePath);
 
@@ -100,6 +157,90 @@ public class CompressionUtils {
 
                 break;
             }
+
+            case "Arithmetic Coding": {
+
+                if (files.size() == 1) {
+
+                    arithmeticCodingDecompress(inputFilePath, outputFilePath);
+
+                    break;
+
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        arithmeticCodingDecompress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                    }
+
+                }
+                break;
+            }
+
+            case "Adaptive Arithmetic Coding": {
+                if (files.size() == 1) {
+
+                    adaptiveArithmeticCodingDecompress(inputFilePath, outputFilePath);
+
+                    break;
+
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        adaptiveArithmeticCodingDecompress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                    }
+
+                }
+                break;
+            }
+        }
+    }
+
+    private static void adaptiveArithmeticCodingCompress(String inputFilePath, String outputFilePath) throws IOException {
+        File inputFile = new File(inputFilePath);
+        File outputFile = new File(outputFilePath);
+        // Perform file compression
+        try (InputStream in = new BufferedInputStream(new FileInputStream(inputFile));
+             BitOutputStream out = new BitOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)))) {
+            AdaptiveArithmeticCompress.compress(in, out);
+        }
+    }
+
+    private static void adaptiveArithmeticCodingDecompress(String inputFilePath, String outputFilePath) throws IOException {
+        File inputFile = new File(inputFilePath);
+        File outputFile = new File(outputFilePath);
+
+        // Perform file decompression
+        try (BitInputStream in = new BitInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
+             OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+            AdaptiveArithmeticDecompress.decompress(in, out);
+        }
+    }
+
+    private static void arithmeticCodingCompress(String inputFilePath, String outputFilePath) throws IOException {
+        File inputFile = new File(inputFilePath);
+        File outputFile = new File(outputFilePath);
+
+        // Read input file once to compute symbol frequencies
+        FrequencyTable freqs = getFrequencies(inputFile);
+        freqs.increment(256);  // EOF symbol gets a frequency of 1
+
+        // Read input file again, compress with arithmetic coding, and write output file
+        try (InputStream in = new BufferedInputStream(new FileInputStream(inputFile));
+             BitOutputStream out = new BitOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile)))) {
+            writeFrequencies(out, freqs);
+            ArithmeticCompress.compress(freqs, in, out);
+        }
+    }
+
+    private static void arithmeticCodingDecompress(String inputFilePath, String outputFilePath) throws IOException {
+        File inputFile = new File(inputFilePath);
+        File outputFile = new File(outputFilePath);
+
+        // Perform file decompression
+        try (BitInputStream in = new BitInputStream(new BufferedInputStream(new FileInputStream(inputFile)));
+             OutputStream out = new BufferedOutputStream(new FileOutputStream(outputFile))) {
+            FrequencyTable freqs = readFrequencies(in);
+            ArithmeticDecompress.decompress(freqs, in, out);
         }
     }
 
@@ -129,5 +270,24 @@ public class CompressionUtils {
                     flattenFolder(file.getAbsolutePath(), files);
                 }
             }
+    }
+
+    private static void calculateCompressionRatio(String inputFileLocation, String outputFileLocation) {
+        File inputFile = new File(inputFileLocation);
+        File outputFile = new File(outputFileLocation);
+
+
+        double inputFileSize = (double) (inputFile.length()) / (1024 * 1024);
+
+
+        double outputFileSize = (double) (outputFile.length()) / (1024 * 1024);
+
+        String logMessage = "-----\n";
+        logMessage += "Input File:\nName: " + inputFile.getName() + " Size: " + String.format("%.02f", inputFileSize) + " MB";
+        logMessage += "\nCompressed File:\nName: " + outputFile.getName() + " Size: " + String.format("%.02f", outputFileSize) + " MB";
+        logMessage += "\nCompression Ration = " + String.format("%.02f", (outputFileSize / inputFileSize)) + "%";
+        logMessage += "\n-----\n";
+        FileUtils.writeToLogFile(logMessage);
+
     }
 }

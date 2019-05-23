@@ -4,7 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class FileUtils {
 
@@ -29,6 +33,23 @@ public class FileUtils {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static void writeToLogFile(String log){
+        File file = new File(System.getProperty("user.home") + "/Desktop/log.txt");
+        if (!file.exists()) {
+            try {
+                //noinspection all
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            Files.write(Paths.get(file.toURI()), log.getBytes(), StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

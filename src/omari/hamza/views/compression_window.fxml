@@ -2,6 +2,7 @@
 
 <?import com.jfoenix.controls.JFXButton?>
 <?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXSpinner?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.TextField?>
@@ -22,7 +23,7 @@
             <Cursor fx:constant="CLOSED_HAND" />
          </cursor>
       </ImageView>
-      <VBox alignment="CENTER_RIGHT" layoutX="148.0" prefHeight="400.0">
+      <VBox fx:id="inputLayout" alignment="CENTER_RIGHT" layoutX="148.0" prefHeight="400.0">
          <children>
             <HBox alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity">
                <children>
@@ -69,5 +70,6 @@
             </HBox>
          </children>
       </VBox>
+      <JFXSpinner fx:id="progressBar" layoutX="275.0" layoutY="175.0" visible="false" />
    </children>
 </AnchorPane>
