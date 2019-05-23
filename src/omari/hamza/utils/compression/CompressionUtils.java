@@ -1,19 +1,16 @@
 package omari.hamza.utils.compression;
 
-import com.oracle.tools.packager.IOUtils;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 
 public class CompressionUtils {
 
     public static enum CompressionAlgorithms {
 
-        RLE, HUFFMAN, ADAPTIVE_HUFFMAN;
+        RLE, HUFFMAN, ADAPTIVE_HUFFMAN, LZ77;
 
 
         @Override
