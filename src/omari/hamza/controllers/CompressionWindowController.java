@@ -3,8 +3,6 @@ package omari.hamza.controllers;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXSpinner;
 import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -44,7 +42,8 @@ public class CompressionWindowController extends MasterController {
                 CompressionAlgorithms.ADAPTIVE_HUFFMAN.toString(),
                 CompressionAlgorithms.LZ77.toString(),
                 CompressionAlgorithms.ARITHMETIC_CODING.toString(),
-                CompressionAlgorithms.ADAPTIVE_ARITHMETIC_CODING.toString());
+                CompressionAlgorithms.ADAPTIVE_ARITHMETIC_CODING.toString(),
+                CompressionAlgorithms.LZW.toString());
     }
 
 
@@ -54,7 +53,7 @@ public class CompressionWindowController extends MasterController {
         inputLayout.setVisible(false);
         progressBar.setVisible(true);
 
-        Thread compressionThread = createThread(new Task<>() {
+        Thread compressionThread = createThread(new Task<Void>() {
             @Override
             protected Void call() {
                 try {
@@ -80,7 +79,7 @@ public class CompressionWindowController extends MasterController {
         progressBar.setVisible(true);
 
 
-        Thread decompressionThread = createThread(new Task<>() {
+        Thread decompressionThread = createThread(new Task<Void>() {
             @Override
             protected Void call() {
                 try {

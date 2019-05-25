@@ -2,6 +2,8 @@ package omari.hamza.utils.compression;
 
 import omari.hamza.utils.FileUtils;
 import omari.hamza.utils.compression.aithmetic_coding.*;
+import omari.hamza.utils.compression.huffman.Huffman;
+import omari.hamza.utils.compression.lzw.LZW;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -12,37 +14,6 @@ import static omari.hamza.utils.compression.aithmetic_coding.ArithmeticCompress.
 import static omari.hamza.utils.compression.aithmetic_coding.ArithmeticDecompress.readFrequencies;
 
 public class CompressionUtils {
-
-    public enum CompressionAlgorithms {
-
-        RLE, HUFFMAN, ADAPTIVE_HUFFMAN, LZ77, ARITHMETIC_CODING, ADAPTIVE_ARITHMETIC_CODING;
-
-
-        @Override
-        public String toString() {
-            switch (this) {
-                case RLE: {
-                    return "RLE";
-                }
-                case ADAPTIVE_HUFFMAN: {
-                    return "Adaptive Huffman";
-                }
-                case HUFFMAN: {
-                    return "Huffman";
-                }
-                case LZ77: {
-                    return "LZ77";
-                }
-                case ARITHMETIC_CODING: {
-                    return "Arithmetic Coding";
-                }
-                case ADAPTIVE_ARITHMETIC_CODING: {
-                    return "Adaptive Arithmetic Coding";
-                }
-            }
-            return "";
-        }
-    }
 
     public static void compress(String inputFilePath, String outputFilePath, String compressionAlgorithm)
             throws IOException {
@@ -74,7 +45,14 @@ public class CompressionUtils {
             }
 
             case "Huffman": {
-
+                if (files.size() == 1) {
+                    Huffman.compress(inputFilePath, outputFilePath);
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        Huffman.compress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                    }
+                }
                 break;
             }
 
@@ -124,9 +102,19 @@ public class CompressionUtils {
                 }
                 break;
             }
+
+            case "LZW": {
+                if (files.size() == 1) {
+                    LZW.compress(inputFilePath, outputFilePath);
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        LZW.compress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                    }
+                }
+            }
         }
     }
-
 
     public static void decompress(String inputFilePath, String outputFilePath, String compressionAlgorithm)
             throws IOException {
@@ -149,7 +137,14 @@ public class CompressionUtils {
             }
 
             case "Huffman": {
-
+                if (files.size() == 1) {
+                    Huffman.decompress(inputFilePath, outputFilePath);
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        Huffman.decompress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                    }
+                }
                 break;
             }
 
@@ -189,6 +184,18 @@ public class CompressionUtils {
                         adaptiveArithmeticCodingDecompress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
                     }
 
+                }
+                break;
+            }
+
+            case "LZW": {
+                if (files.size() == 1) {
+                    LZW.decompress(inputFilePath, outputFilePath);
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        LZW.decompress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                    }
                 }
                 break;
             }
@@ -289,5 +296,39 @@ public class CompressionUtils {
         logMessage += "\n-----\n";
         FileUtils.writeToLogFile(logMessage);
 
+    }
+
+    public enum CompressionAlgorithms {
+
+        RLE, HUFFMAN, ADAPTIVE_HUFFMAN, LZ77, ARITHMETIC_CODING, ADAPTIVE_ARITHMETIC_CODING, LZW;
+
+
+        @Override
+        public String toString() {
+            switch (this) {
+                case RLE: {
+                    return "RLE";
+                }
+                case ADAPTIVE_HUFFMAN: {
+                    return "Adaptive Huffman";
+                }
+                case HUFFMAN: {
+                    return "Huffman";
+                }
+                case LZ77: {
+                    return "LZ77";
+                }
+                case ARITHMETIC_CODING: {
+                    return "Arithmetic Coding";
+                }
+                case ADAPTIVE_ARITHMETIC_CODING: {
+                    return "Adaptive Arithmetic Coding";
+                }
+                case LZW: {
+                    return "LZW";
+                }
+            }
+            return "";
+        }
     }
 }
