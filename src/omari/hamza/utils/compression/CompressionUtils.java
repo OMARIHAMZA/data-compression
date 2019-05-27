@@ -58,7 +58,14 @@ public class CompressionUtils {
             }
 
             case "Adaptive Huffman": {
-                adaptiveEncode(inputFilePath, outputFilePath, "8");
+                if (files.size() == 1) {
+                    adaptiveEncode(inputFilePath, outputFilePath, "8");
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        adaptiveEncode(file.getPath(), file.getParent() + "/decompressed/" + file.getName(), "8");
+                    }
+                }
                 break;
             }
 
@@ -107,12 +114,28 @@ public class CompressionUtils {
             case "LZW": {
                 if (files.size() == 1) {
                     LZW.compress(inputFilePath, outputFilePath);
+                    calculateCompressionRatio(inputFilePath, outputFilePath);
                 } else {
                     for (File file : files) {
                         new File(file.getParent() + "/decompressed").mkdirs();
                         LZW.compress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
                     }
                 }
+                break;
+            }
+
+            case "LZ77": {
+                if (files.size() == 1) {
+                    // TODO: 5/27/2019 COMPRESS SINGLE FILE IN LZ77
+//                    LZ77.compress(inputFilePath, outputFilePath);
+                } else {
+                    // TODO: 5/27/2019 COMPRESS MULTIPLE FILES , OUTPUT FILE PATH =   file.getParent() + "/decompressed/" + file.getName()
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+//                        LZ77.compress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                    }
+                }
+                break;
             }
         }
     }
@@ -150,7 +173,14 @@ public class CompressionUtils {
             }
 
             case "Adaptive Huffman": {
-                adaptiveDecode(inputFilePath, outputFilePath);
+                if (files.size() == 1) {
+                    adaptiveDecode(inputFilePath, outputFilePath);
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        adaptiveDecode(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                    }
+                }
                 break;
             }
 
@@ -200,6 +230,21 @@ public class CompressionUtils {
                 }
                 break;
             }
+
+            case "LZ77": {
+                if (files.size() == 1) {
+                    // TODO: 5/27/2019 DECOMPRESS SINGLE FILE
+                    // LZW.decompress(inputFilePath, outputFilePath);
+                } else {
+                    // TODO: 5/27/2019 DECOMPRESS MULTIPLE FILES  
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+//                        LZW.decompress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                    }
+                }
+                break;
+            }
+
         }
     }
 
@@ -299,13 +344,13 @@ public class CompressionUtils {
 
     }
 
-    public static void adaptiveEncode(String readFilename, String outputFilePath, String encodingSize) {
+    private static void adaptiveEncode(String readFilename, String outputFilePath, String encodingSize) {
         AdaptiveHuffmanEncoder encoder = new AdaptiveHuffmanEncoder(Integer.parseInt(encodingSize));
         outputFilePath = outputFilePath.replace('/', '\\');
         encoder.encode(readFilename, outputFilePath);
     }
 
-    public static void adaptiveDecode(String fileName, String outputFilePath) {
+    private static void adaptiveDecode(String fileName, String outputFilePath) {
         AdaptiveHuffmanDecoder decoder = new AdaptiveHuffmanDecoder();
         outputFilePath = outputFilePath.replace('/', '\\');
         decoder.decode(fileName, outputFilePath);
