@@ -5,6 +5,7 @@ import omari.hamza.utils.compression.adaptive.huffman.AdaptiveHuffmanDecoder;
 import omari.hamza.utils.compression.adaptive.huffman.AdaptiveHuffmanEncoder;
 import omari.hamza.utils.compression.aithmetic_coding.*;
 import omari.hamza.utils.compression.huffman.Huffman;
+import omari.hamza.utils.compression.lz77.LZ77;
 import omari.hamza.utils.compression.lzw.LZW;
 
 import java.io.*;
@@ -58,7 +59,14 @@ public class CompressionUtils {
             }
 
             case "Adaptive Huffman": {
-                adaptiveEncode(inputFilePath, outputFilePath, "8");
+                if (files.size() == 1) {
+                    adaptiveEncode(inputFilePath, outputFilePath, "8");
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        adaptiveEncode(file.getPath(), file.getParent() + "/decompressed/" + file.getName(), "8");
+                    }
+                }
                 break;
             }
 
@@ -107,12 +115,30 @@ public class CompressionUtils {
             case "LZW": {
                 if (files.size() == 1) {
                     LZW.compress(inputFilePath, outputFilePath);
+                    calculateCompressionRatio(inputFilePath, outputFilePath);
                 } else {
                     for (File file : files) {
                         new File(file.getParent() + "/decompressed").mkdirs();
                         LZW.compress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
                     }
                 }
+                break;
+            }
+
+            case "LZ77": {
+                LZ77 lz77 = new LZ77();
+                if (files.size() == 1) {
+
+                    lz77.compress(inputFilePath, outputFilePath);
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        lz77.compress(file.getPath(),
+                                file.getParent() + "/decompressed/" + file.getName());
+                    }
+                }
+
+                break;
             }
         }
     }
@@ -150,7 +176,14 @@ public class CompressionUtils {
             }
 
             case "Adaptive Huffman": {
-                adaptiveDecode(inputFilePath, outputFilePath);
+                if (files.size() == 1) {
+                    adaptiveDecode(inputFilePath, outputFilePath);
+                } else {
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+                        adaptiveDecode(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                    }
+                }
                 break;
             }
 
@@ -200,6 +233,24 @@ public class CompressionUtils {
                 }
                 break;
             }
+
+            case "LZ77": {
+                LZ77 lz77 = new LZ77();
+
+                if (files.size() == 1) {
+                    lz77.decompress(inputFilePath, outputFilePath);
+                } else {
+
+                    for (File file : files) {
+                        new File(file.getParent() + "/decompressed").mkdirs();
+
+                        lz77.decompress(file.getPath(),
+                                file.getParent() + "/decompressed/" + file.getName());
+                    }
+                }
+                break;
+            }
+
         }
     }
 
@@ -299,13 +350,13 @@ public class CompressionUtils {
 
     }
 
-    public static void adaptiveEncode(String readFilename, String outputFilePath, String encodingSize) {
+    private static void adaptiveEncode(String readFilename, String outputFilePath, String encodingSize) {
         AdaptiveHuffmanEncoder encoder = new AdaptiveHuffmanEncoder(Integer.parseInt(encodingSize));
         outputFilePath = outputFilePath.replace('/', '\\');
         encoder.encode(readFilename, outputFilePath);
     }
 
-    public static void adaptiveDecode(String fileName, String outputFilePath) {
+    private static void adaptiveDecode(String fileName, String outputFilePath) {
         AdaptiveHuffmanDecoder decoder = new AdaptiveHuffmanDecoder();
         outputFilePath = outputFilePath.replace('/', '\\');
         decoder.decode(fileName, outputFilePath);
