@@ -41,7 +41,7 @@ public class AdaptiveHuffmanDecoder {
      *
      * @param filename
      */
-    public void decode(String filename) {
+    public void decode(String filename, String outputFilePath) {
 
         try {
             this.inputStream = new FileInputStream(filename);
@@ -51,7 +51,11 @@ public class AdaptiveHuffmanDecoder {
             System.exit(0);
         }
 
-        this.outputStream = this.setupOutputFile(filename);
+        try {
+            this.outputStream = new FileOutputStream(new File(outputFilePath));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
 
         AdaptiveHuffmanNode currNode = null;

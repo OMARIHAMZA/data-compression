@@ -35,7 +35,7 @@ public class AdaptiveHuffmanEncoder {
      *
      * @param filename The name of the file to be compressed.
      */
-    public void encode(String filename) {
+    public void encode(String filename, String outputFilePath) {
 
         //the current characters waiting to be read to the file and the string to add to the file
         String currString = "", stringToAdd = "";
@@ -62,7 +62,12 @@ public class AdaptiveHuffmanEncoder {
         }
 
         //the file output stream for the given file
-        FileOutputStream fout = this.setupOutputFile(filename);
+        FileOutputStream fout = null;
+        try {
+            fout = new FileOutputStream(new File(outputFilePath));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
 
         //Tries to read the file character by character up to the end of the file.
         //If there are any problems then exit the program.
@@ -168,8 +173,7 @@ public class AdaptiveHuffmanEncoder {
 
         //The compressed file name, made up of the file name components from the original file name and the compressed
         //file path keyword added
-        String compressedFileName = path + "\\" + compressedFileNameComps[0]
-                .substring(absolouteFileName.lastIndexOf("\\") + 1) + ".compressed" + this.numberOfBitsToUse + "." + compressedFileNameComps[1];
+        String compressedFileName = path + "\\" + compressedFileNameComps[0] + compressedFileNameComps[1];
 
         //create new file
         File outputFile = new File(compressedFileName);

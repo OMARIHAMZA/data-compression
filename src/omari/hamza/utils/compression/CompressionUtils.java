@@ -1,12 +1,13 @@
 package omari.hamza.utils.compression;
 
 import omari.hamza.utils.FileUtils;
+import omari.hamza.utils.compression.adaptive.huffman.AdaptiveHuffmanDecoder;
+import omari.hamza.utils.compression.adaptive.huffman.AdaptiveHuffmanEncoder;
 import omari.hamza.utils.compression.aithmetic_coding.*;
 import omari.hamza.utils.compression.huffman.Huffman;
 import omari.hamza.utils.compression.lzw.LZW;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.ArrayList;
 
 import static omari.hamza.utils.compression.aithmetic_coding.ArithmeticCompress.getFrequencies;
@@ -57,7 +58,7 @@ public class CompressionUtils {
             }
 
             case "Adaptive Huffman": {
-
+                adaptiveEncode(inputFilePath, outputFilePath, "8");
                 break;
             }
 
@@ -149,7 +150,7 @@ public class CompressionUtils {
             }
 
             case "Adaptive Huffman": {
-
+                adaptiveDecode(inputFilePath, outputFilePath);
                 break;
             }
 
@@ -296,6 +297,18 @@ public class CompressionUtils {
         logMessage += "\n-----\n";
         FileUtils.writeToLogFile(logMessage);
 
+    }
+
+    public static void adaptiveEncode(String readFilename, String outputFilePath, String encodingSize) {
+        AdaptiveHuffmanEncoder encoder = new AdaptiveHuffmanEncoder(Integer.parseInt(encodingSize));
+        outputFilePath = outputFilePath.replace('/', '\\');
+        encoder.encode(readFilename, outputFilePath);
+    }
+
+    public static void adaptiveDecode(String fileName, String outputFilePath) {
+        AdaptiveHuffmanDecoder decoder = new AdaptiveHuffmanDecoder();
+        outputFilePath = outputFilePath.replace('/', '\\');
+        decoder.decode(fileName, outputFilePath);
     }
 
     public enum CompressionAlgorithms {
