@@ -37,6 +37,7 @@ public class CompressionWindowController extends MasterController {
 
     @Override
     protected void onCreate() {
+        algorithmComboBox.getStylesheets().add("combo.css");
         algorithmComboBox.getItems().addAll(CompressionAlgorithms.RLE.toString(),
                 CompressionAlgorithms.HUFFMAN.toString(),
                 CompressionAlgorithms.ADAPTIVE_HUFFMAN.toString(),
