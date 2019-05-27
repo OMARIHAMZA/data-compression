@@ -5,6 +5,7 @@ import omari.hamza.utils.compression.adaptive.huffman.AdaptiveHuffmanDecoder;
 import omari.hamza.utils.compression.adaptive.huffman.AdaptiveHuffmanEncoder;
 import omari.hamza.utils.compression.aithmetic_coding.*;
 import omari.hamza.utils.compression.huffman.Huffman;
+import omari.hamza.utils.compression.lz77.LZ77;
 import omari.hamza.utils.compression.lzw.LZW;
 
 import java.io.*;
@@ -125,16 +126,18 @@ public class CompressionUtils {
             }
 
             case "LZ77": {
+                LZ77 lz77 = new LZ77();
                 if (files.size() == 1) {
-                    // TODO: 5/27/2019 COMPRESS SINGLE FILE IN LZ77
-//                    LZ77.compress(inputFilePath, outputFilePath);
+
+                    lz77.compress(inputFilePath, outputFilePath);
                 } else {
-                    // TODO: 5/27/2019 COMPRESS MULTIPLE FILES , OUTPUT FILE PATH =   file.getParent() + "/decompressed/" + file.getName()
                     for (File file : files) {
                         new File(file.getParent() + "/decompressed").mkdirs();
-//                        LZ77.compress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+                        lz77.compress(file.getPath(),
+                                file.getParent() + "/decompressed/" + file.getName());
                     }
                 }
+
                 break;
             }
         }
@@ -232,14 +235,17 @@ public class CompressionUtils {
             }
 
             case "LZ77": {
+                LZ77 lz77 = new LZ77();
+
                 if (files.size() == 1) {
-                    // TODO: 5/27/2019 DECOMPRESS SINGLE FILE
-                    // LZW.decompress(inputFilePath, outputFilePath);
+                    lz77.decompress(inputFilePath, outputFilePath);
                 } else {
-                    // TODO: 5/27/2019 DECOMPRESS MULTIPLE FILES  
+
                     for (File file : files) {
                         new File(file.getParent() + "/decompressed").mkdirs();
-//                        LZW.decompress(file.getPath(), file.getParent() + "/decompressed/" + file.getName());
+
+                        lz77.decompress(file.getPath(),
+                                file.getParent() + "/decompressed/" + file.getName());
                     }
                 }
                 break;
